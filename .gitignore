@@ -1,0 +1,21 @@
+# wyniki generowane przez kod
+outputs/
+
+# pobrane dane Sentinel-5P (duże, pobierane skryptem)
+data/raw/
+
+# srodowisko Pythona
+.venv/
+.idea/
+__pycache__/
+.ipynb_checkpoints/
+
+# hasla, tokeny - NIGDY do repo
+.env
+*.netrc
+
+# smieci systemowe
+.DS_Store
+._*
+~$*
+Thumbs.db

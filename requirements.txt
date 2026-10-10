@@ -1,0 +1,10 @@
+# Python 3.11+
+numpy
+pandas
+matplotlib
+pillow
+xarray
+netCDF4
+openeo
+scipy
+requests
