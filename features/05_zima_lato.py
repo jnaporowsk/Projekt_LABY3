@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 TYTUL = "Zima vs Lato"
+SKROT = "Zima i lato"   # krótka nazwa w menu
 
 def uruchom(dane):
     miasta = dane.miasta

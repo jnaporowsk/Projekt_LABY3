@@ -18,6 +18,7 @@ Co możesz zwrócić (pojedynczo albo w liście):
 import matplotlib.pyplot as plt
 
 TYTUL = "Przykład: NO₂ w Krakowie"
+SKROT = "Przykład"   # krótka nazwa w menu (1–2 słowa)
 
 
 def uruchom(dane):

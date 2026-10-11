@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 TYTUL = "Wpływ pogody na smog – temperatura i wiatr vs NO2 w Krakowie"
+SKROT = "Pogoda"   # krótka nazwa w menu
 
 def uruchom(dane):
     krakow = dane.miasta["Kraków"].dropna()
@@ -28,10 +29,9 @@ def uruchom(dane):
             "wiatr": pogoda["wind_speed_10m_max"],
         }).set_index("data")
         df = pd.DataFrame({"no2": krakow}).join(df_pogoda).dropna()
-    except Exception:
-        df = pd.DataFrame({"no2": krakow})
-        df["temperatura"] = 15.0 - (df["no2"] - df["no2"].mean()) * 0.3
-        df["wiatr"] = 12.0 - (df["no2"] - df["no2"].mean()) * 0.15
+    except Exception as e:
+        return (f"Nie udało się pobrać danych pogodowych z Open-Meteo ({type(e).__name__}). "
+                "Ta sekcja potrzebuje internetu – uruchom stronę ponownie, gdy połączenie będzie działać.")
 
     r_temp = df["temperatura"].corr(df["no2"])
     r_wiatr = df["wiatr"].corr(df["no2"])
@@ -51,8 +51,8 @@ def uruchom(dane):
     ax1.plot(x_t, fit_temp(x_t), color="#b71c1c", linestyle="--", linewidth=2, label="Trend liniowy")
 
     ax1.set_xlabel("Średnia temperatura dobowa [°C]", fontsize=10)
-    ax1.set_ylabel("Stężenie NO₂ [µg/m³]", fontsize=10)
-    ax1.set_title(f"Temperatura vs NO₂\n(r = {r_temp:.2f} – silna zależność ujemna)", fontsize=11, fontweight="bold")
+    ax1.set_ylabel("NO₂ [µmol/m²]", fontsize=10)
+    ax1.set_title(f"Temperatura vs NO₂ (r = {r_temp:.2f})", fontsize=11, fontweight="bold")
     ax1.legend(loc="upper right", frameon=True, framealpha=0.9, fontsize=8.5)
 
     # --- Wykres 2: Wiatr vs NO2 ---
@@ -67,7 +67,7 @@ def uruchom(dane):
     ax2.plot(x_w, fit_wiatr(x_w), color="#0d47a1", linestyle="--", linewidth=2, label="Trend liniowy")
 
     ax2.set_xlabel("Maks. prędkość wiatru [km/h]", fontsize=10)
-    ax2.set_title(f"Prędkość wiatru vs NO₂\n(r = {r_wiatr:.2f} – korelacja)", fontsize=11, fontweight="bold")
+    ax2.set_title(f"Wiatr vs NO₂ (r = {r_wiatr:.2f})", fontsize=11, fontweight="bold")
     ax2.legend(loc="upper right", frameon=True, framealpha=0.9, fontsize=8.5)
 
     # Stylistyka osi i siatki
@@ -78,4 +78,13 @@ def uruchom(dane):
         ax.tick_params(labelsize=9)
 
     fig.tight_layout()
-    return fig
+
+    def sila(r):
+        a = abs(r)
+        return "silna" if a >= 0.5 else "umiarkowana" if a >= 0.3 else "słaba"
+
+    opis = (f"Dzienne NO₂ w Krakowie zestawione z pogodą z Open-Meteo ({len(df)} dni z pomiarem). "
+            f"Zależność od temperatury jest <b>{sila(r_temp)}</b> (r = {r_temp:.2f}), "
+            f"od wiatru <b>{sila(r_wiatr)}</b> (r = {r_wiatr:.2f}). "
+            f"Ujemne r oznacza, że im cieplej lub im mocniej wieje, tym mniej NO₂.")
+    return [opis, fig]

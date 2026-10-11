@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 TYTUL = "Czy weekend wpływa na poziom NO₂?"
+SKROT = "Weekend"   # krótka nazwa w menu
 
 
 def uruchom(dane):

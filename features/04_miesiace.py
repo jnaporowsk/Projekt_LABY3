@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from strona import Plik
 
 TYTUL = "Miesiące - Średnie miesięczne NO₂"
+SKROT = "Miesiące"   # krótka nazwa w menu
 
 def uruchom(dane):
     srednie_miesieczne = dane.miasta.groupby(dane.miasta.index.month).mean()

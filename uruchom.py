@@ -53,18 +53,19 @@ def main():
         try:
             modul = wczytaj_feature(plik)
             tytul = getattr(modul, "TYTUL", plik.stem)
+            skrot = getattr(modul, "SKROT", None)
             elementy = modul.uruchom(dane)
             if not isinstance(elementy, (list, tuple)):
                 elementy = [elementy]
             print(f"  OK    {plik.name}")
         except Exception:
             bledy += 1
-            tytul = plik.stem
+            tytul, skrot = plik.stem, None
             elementy = [f'<span class="blad">{traceback.format_exc()}</span>']
             print(f"  BŁĄD  {plik.name}\n{traceback.format_exc()}")
-        wyniki.append((plik.stem, tytul, elementy))
+        wyniki.append((plik.stem, tytul, elementy, skrot))
 
-    cel = strona.zbuduj(wyniki, ROOT / "outputs" / "site", dane.zrodlo)
+    cel = strona.zbuduj(wyniki, ROOT / "outputs" / "site", dane.zrodlo, dane)
     print(f"Strona: {cel}")
     sys.exit(1 if bledy else 0)
 

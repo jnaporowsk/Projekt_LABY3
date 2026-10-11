@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 
 TYTUL = "Top 10 dni z najwyższym stężeniem NO₂ w Krakowie"
+SKROT = "Najgorsze dni"   # krótka nazwa w menu
 
 
 def uruchom(dane):
@@ -13,7 +14,6 @@ def uruchom(dane):
     ax.set_xlabel("NO₂ [µmol/m²]")
     ax.set_title("10 dni z najwyższym zanieczyszczeniem w Krakowie")
 
-    return [
-        fig,
-        f"<b>Zestawienie top 10 dni smogowych:</b><br>{top10.to_frame(name='NO2').to_html(classes='table table-striped', border=0)}"
-    ]
+    tabela = top10.to_frame(name="NO₂ [µmol/m²]")
+    tabela.index.name = "Dzień"
+    return [fig, "Zestawienie 10 dni z najwyższym NO₂:", tabela]

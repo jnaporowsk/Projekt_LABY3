@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 TYTUL = "Kalendarz smogu w Krakowie (rozkład roczny)"
+SKROT = "Kalendarz"   # krótka nazwa w menu
 
 def uruchom(dane):
     seria = dane.miasta["Kraków"].copy()
@@ -23,7 +24,7 @@ def uruchom(dane):
     ax.set_title("Stężenie NO₂ w Krakowie dzień po dniu w ujęciu tygodniowym")
 
     cbar = fig.colorbar(cax, ax=ax, orientation="horizontal", pad=0.25, shrink=0.5)
-    cbar.set_label("Stężenie NO₂ [µg/m³]")
+    cbar.set_label("NO₂ [µmol/m²]")
 
     fig.tight_layout()
     return fig

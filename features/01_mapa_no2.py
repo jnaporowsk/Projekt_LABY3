@@ -2,6 +2,7 @@
 from strona import Mapa
 
 TYTUL = "Mapa NO₂ – kliknij, żeby zobaczyć przebieg w czasie"
+SKROT = "Mapa"   # krótka nazwa w menu
 
 
 def uruchom(dane):
