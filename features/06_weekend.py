@@ -1,84 +1,83 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-TYTUL = "Weekend vs dni robocze"
+TYTUL = "Czy weekend wpływa na poziom NO₂?"
 
 
 def uruchom(dane):
-    miasta = dane.miasta
+    df = dane.miasta.copy()
 
-    dni_robocze = miasta[miasta.index.dayofweek < 5]
-    weekend = miasta[miasta.index.dayofweek >= 5]
+    robocze = df.loc[df.index.dayofweek < 5]
+    weekendy = df.loc[df.index.dayofweek >= 5]
 
-    srednia_robocze = dni_robocze.mean()
-    srednia_weekend = weekend.mean()
+    sr_robocze = robocze.mean()
+    sr_weekendy = weekendy.mean()
 
-    roznica = (
-        (srednia_weekend - srednia_robocze)
-        / srednia_robocze.replace(0, float("nan"))
-    ) * 100
+    zmiana = (sr_weekendy / sr_robocze.replace(0, float("nan")) - 1) * 100
 
-    tabela = pd.DataFrame({
-        "Dni robocze [µmol/m²]": srednia_robocze,
-        "Weekend [µmol/m²]": srednia_weekend,
-        "Różnica [%]": roznica
-    })
+    wyniki = pd.DataFrame({
+        "Dni robocze": sr_robocze,
+        "Weekend": sr_weekendy,
+        "Zmiana (%)": zmiana
+    }).round(2)
 
-    tabela.index.name = "Miasto"
-    tabela = tabela.round(2)
+    wyniki.index.name = "Miasto"
 
-    fig1, ax1 = plt.subplots(figsize=(10, 5))
+    fig1, ax1 = plt.subplots(figsize=(9, 5))
 
-    tabela[[
-        "Dni robocze [µmol/m²]",
-        "Weekend [µmol/m²]"
-    ]].plot(
-        kind="bar",
-        ax=ax1,
-        color=["#457B9D", "#E9C46A"]
-    )
+    zmiana = zmiana.sort_values()
+    kolory = [
+        "#319795" if wartosc < 0 else "#D97757"
+        for wartosc in zmiana
+    ]
 
-    ax1.set_title("Średnie stężenie NO₂ – dni robocze vs weekend")
-    ax1.set_xlabel("Miasto")
-    ax1.set_ylabel("NO₂ [µmol/m²]")
-    ax1.legend(["Dni robocze", "Weekend"])
-    ax1.tick_params(axis="x", rotation=45)
-    ax1.grid(axis="y", alpha=0.3)
+    ax1.barh(zmiana.index, zmiana.values, color=kolory)
+    ax1.axvline(0, color="black", linewidth=0.8)
+
+    ax1.set_title("Zmiana stężenia NO₂ w weekend")
+    ax1.set_xlabel("Zmiana względem dni roboczych (%)")
+    ax1.grid(axis="x", alpha=0.2)
+    ax1.set_axisbelow(True)
 
     fig1.tight_layout()
 
-    srednie_dni = miasta.groupby(miasta.index.dayofweek).mean()
+    srednie = df.mean(axis=1)
+    tydzien = srednie.groupby(srednie.index.dayofweek).mean()
 
-    nazwy_dni = [
-        "Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Nd"
-    ]
+    dni = ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"]
 
-    srednie_dni = srednie_dni.reindex(range(7))
-    srednie_dni.index = nazwy_dni
+    fig2, ax2 = plt.subplots(figsize=(9, 4))
 
-    fig2, ax2 = plt.subplots(figsize=(10, 5))
-
-    srednie_dni.plot(
-        kind="line",
-        ax=ax2,
+    ax2.plot(
+        dni,
+        tydzien.reindex(range(7)).values,
+        color="#263238",
         marker="o",
-        linewidth=2
+        markersize=7,
+        linewidth=2.5
     )
 
-    ax2.set_title("Średnie stężenie NO₂ w dniach tygodnia")
-    ax2.set_xlabel("Dzień tygodnia")
-    ax2.set_ylabel("NO₂ [µmol/m²]")
-    ax2.grid(alpha=0.3)
-    ax2.legend(title="Miasto")
+    ax2.axvspan(4.5, 6.5, color="#319795", alpha=0.12)
+
+    ax2.set_title("Jak zmienia się NO₂ w ciągu tygodnia?")
+    ax2.set_ylabel("Średnie NO₂ [µmol/m²]")
+    ax2.grid(axis="y", alpha=0.25)
 
     fig2.tight_layout()
 
-    return [
-        fig1,
-        "Porównanie średniego stężenia NO₂ w dni robocze "
-        "(poniedziałek–piątek) i weekendy (sobota–niedziela). "
-        "Różnica procentowa została obliczona względem dni roboczych. "
-        "Wartość ujemna oznacza niższe stężenie NO₂ w weekend.",
-        tabela,
-        fig2
-    ]
+    srednia_zmiana = zmiana.mean()
+
+    if pd.isna(srednia_zmiana):
+        opis = "Brak wystarczających danych do porównania."
+    elif srednia_zmiana < 0:
+        opis = (
+            f"W weekendy stężenie NO₂ jest średnio o "
+            f"{abs(srednia_zmiana):.1f}% niższe niż w dni robocze."
+        )
+    else:
+        opis = (
+            f"W weekendy stężenie NO₂ jest średnio o "
+            f"{srednia_zmiana:.1f}% wyższe niż w dni robocze."
+        )
+
+    return [opis, fig1, fig2, wyniki]
